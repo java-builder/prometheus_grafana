@@ -1,0 +1,56 @@
+global:
+  # Sau 5 phút không nhận alert nữa thì coi như đã resolved
+  resolve_timeout: 5m
+  
+  # SMTP server của Gmail, port 587 (STARTTLS)
+  smtp_smarthost: 'smtp.gmail.com:587'
+  
+  # Email người gửi (FROM field)
+  smtp_from: 'lekhanhduc212003@gmail.com'
+  
+  # Username để login vào Gmail SMTP
+  smtp_auth_username: 'lekhanhduc212003@gmail.com'
+  
+  # Password để login (phải dùng App Password, không phải password thường)
+  smtp_auth_password: 'APP_PASSWORD'
+  
+  # Bắt buộc dùng TLS encryption (bảo mật)
+  smtp_require_tls: true
+
+route:
+  # Gom các alerts có cùng alertname và service thành 1 email
+  group_by: ['alertname', 'service']
+  
+  # Đợi 10 giây sau khi nhận alert đầu tiên để xem có thêm alerts tương tự không
+  group_wait: 10s
+  
+  # Nếu có thêm alerts mới trong cùng group, đợi 10s rồi gửi batch tiếp
+  group_interval: 10s
+  
+  # Nếu alert vẫn đang firing, gửi lại email sau mỗi 1 giờ (tránh spam)
+  repeat_interval: 1h
+  
+  # Gửi đến receiver tên 'email-alerts'
+  receiver: 'email-alerts'
+
+receivers:
+  - name: 'email-alerts'
+    email_configs:
+      - send_resolved: true
+        to: 'lekhanhduc212003@gmail.com'
+        headers:
+          Subject: '🚨 [{{ .Status | toUpper }}] {{ .GroupLabels.alertname }} - {{ .GroupLabels.service }}'
+        html: |
+          <h2>🚨 Alert: {{ .GroupLabels.alertname }}</h2>
+          <p><strong>Status:</strong> {{ .Status | toUpper }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          <hr>
+          {{ range .Alerts }}
+          <h3>{{ .Annotations.summary }}</h3>
+          <p>{{ .Annotations.description }}</p>
+          <p><strong>Started at:</strong> {{ .StartsAt }}</p>
+          {{ if .EndsAt }}<p><strong>Ended at:</strong> {{ .EndsAt }}</p>{{ end }}
+          <hr>
+          {{ end }}
+

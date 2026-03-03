@@ -1,0 +1,36 @@
+groups:
+  - name: application_alerts
+    interval: 5s
+    rules:
+      # Alert khi có HTTP 500 errors
+      - alert: HighServerErrorRate
+        expr: rate(http_server_requests_seconds_count{status="500"}[1m]) > 0
+        for: 5s
+        labels:
+          severity: critical
+          service: backend-service
+        annotations:
+          summary: "High 500 error rate detected"
+          description: "Application {{ $labels.application }} on {{ $labels.instance }} has {{ $value }} errors per second"
+
+      # Alert khi response time quá chậm (> 5s)
+      - alert: SlowResponseTime
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[1m])) > 5
+        for: 10s
+        labels:
+          severity: warning
+          service: backend-service
+        annotations:
+          summary: "Slow API response time"
+          description: "95th percentile response time is {{ $value }}s (threshold: 5s)"
+
+      # Alert khi application down
+      - alert: ApplicationDown
+        expr: up{job="backend-service"} == 0
+        for: 5s
+        labels:
+          severity: critical
+          service: backend-service
+        annotations:
+          summary: "Application is down"
+          description: "Backend service {{ $labels.instance }} is not responding"
