@@ -31,28 +31,34 @@
 ### 1. Phát hiện sự cố sớm (Proactive vs Reactive)
 
 **Không có Monitoring (Reactive):**
-```
-09:00 - Hệ thống bắt đầu chậm (không ai biết)
-09:30 - Memory leak nghiêm trọng (không ai biết)
-10:00 - Application crash
-10:05 - User bắt đầu phàn nàn
-10:10 - Team nhận được ticket từ user
-10:15 - Bắt đầu điều tra (không có data)
-10:45 - Tìm ra nguyên nhân
-11:00 - Fix và deploy
-→ Downtime: 1 giờ, User experience: Rất tệ
-```
+
+| Thời gian | Sự kiện |
+|-----------|---------|
+| 09:00 | Hệ thống bắt đầu chậm (không ai biết) |
+| 09:30 | Memory leak nghiêm trọng (không ai biết) |
+| 10:00 | Application crash |
+| 10:05 | User bắt đầu phàn nàn |
+| 10:10 | Team nhận được ticket từ user |
+| 10:15 | Bắt đầu điều tra (không có data) |
+| 10:45 | Tìm ra nguyên nhân |
+| 11:00 | Fix và deploy |
+
+**Kết quả:** Downtime 1 giờ, User experience rất tệ
+
+---
 
 **Có Monitoring (Proactive):**
-```
-09:00 - Hệ thống bắt đầu chậm
-09:05 - Prometheus phát hiện response time tăng
-09:06 - Alert gửi đến team qua email
-09:10 - Team check dashboard, thấy memory leak
-09:20 - Restart service hoặc scale up
-09:25 - Hệ thống trở lại bình thường
-→ Downtime: 0, User không hề biết có vấn đề
-```
+
+| Thời gian | Sự kiện |
+|-----------|---------|
+| 09:00 | Hệ thống bắt đầu chậm |
+| 09:05 | Prometheus phát hiện response time tăng |
+| 09:06 | Alert gửi đến team qua email |
+| 09:10 | Team check dashboard, thấy memory leak |
+| 09:20 | Restart service hoặc scale up |
+| 09:25 | Hệ thống trở lại bình thường |
+
+**Kết quả:** Downtime 0 phút, User không hề biết có vấn đề
 
 ### 2. Tối ưu hóa Performance
 
@@ -66,13 +72,16 @@
 ### 3. Capacity Planning (Lập kế hoạch mở rộng)
 
 **Phân tích xu hướng:**
-```
-Tháng 1: CPU usage trung bình 30%
-Tháng 2: CPU usage trung bình 45%
-Tháng 3: CPU usage trung bình 60%
-→ Dự đoán: Tháng 5 sẽ đạt 90% (nguy hiểm)
-→ Hành động: Scale up trước khi quá tải
-```
+
+| Thời gian | CPU Usage Trung Bình | Trạng thái |
+|-----------|---------------------|------------|
+| Tháng 1 | 30% | An toàn |
+| Tháng 2 | 45% | Bình thường |
+| Tháng 3 | 60% | Cần theo dõi |
+| Tháng 4 (dự đoán) | 75% | Cảnh báo |
+| Tháng 5 (dự đoán) | 90% | Nguy hiểm |
+
+**Hành động:** Scale up trước khi đạt ngưỡng nguy hiểm (trước tháng 5)
 
 ### 4. Debugging nhanh hơn
 
@@ -116,6 +125,24 @@ Monitoring giúp track và đảm bảo đạt được các chỉ số này.
 ### Kiến trúc
 
 ![Monitoring Architecture](https://res.cloudinary.com/drdskl2up/image/upload/v1772531329/1_OMHxzd0ToQPTEcx117lMfg_oqfrhi.png)
+
+**Luồng hoạt động:**
+
+1. **Spring Boot** expose metrics tại endpoint `/actuator/prometheus`
+
+2. **Prometheus** pull (scrape) metrics từ Spring Boot mỗi 5 giây và lưu trữ
+
+3. **Prometheus** đánh giá alert rules:
+   - Nếu phát hiện vấn đề (lỗi 500, API chậm, app down)
+   - Gửi alert đến **Alertmanager**
+
+4. **Alertmanager** nhận alert và gửi email thông báo đến người quản trị
+
+5. **Grafana** query metrics từ **Prometheus** và hiển thị lên dashboard để người quản trị theo dõi
+
+**Tóm tắt:** Spring Boot → Prometheus → Alertmanager → Email
+                                    ↓
+                                 Grafana → Dashboard
 
 ---
 
