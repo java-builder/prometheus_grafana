@@ -902,19 +902,16 @@ curl http://localhost:8080/api/v1/monitoring/error
    - Alert **HighServerErrorRate** chuyển sang màu đỏ (FIRING)
 
 2. **Sau 20-30 giây:**
-   - Check email: Nhận email với subject:
-     ```
-     🚨 [FIRING] HighServerErrorRate - backend-service
-     ```
-   - Nội dung email:
-     ```
-     Alert: HighServerErrorRate
-     Status: FIRING
-     Severity: critical
-     Service: backend-service
-     Summary: High 500 error rate detected
-     Description: Application monitoring has X errors per second
-     ```
+
+   Check email: Nhận email với subject: `🚨 [FIRING] HighServerErrorRate - backend-service`
+   
+   Nội dung email:
+   - **Alert:** HighServerErrorRate
+   - **Status:** FIRING
+   - **Severity:** critical
+   - **Service:** backend-service
+   - **Summary:** High 500 error rate detected
+   - **Description:** Application monitoring has X errors per second
 
 3. **Trong Grafana:**
    - Vào dashboard
@@ -967,19 +964,16 @@ curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
    - Alert **SlowResponseTime** chuyển sang màu đỏ (FIRING)
 
 2. **Sau 40-50 giây:**
-   - Check email: Nhận email với subject:
-     ```
-     🚨 [FIRING] SlowResponseTime - backend-service
-     ```
-   - Nội dung email:
-     ```
-     Alert: SlowResponseTime
-     Status: FIRING
-     Severity: warning
-     Service: backend-service
-     Summary: Slow API response time
-     Description: 95th percentile response time is 6.2s (threshold: 5s)
-     ```
+
+   Check email: Nhận email với subject: `🚨 [FIRING] SlowResponseTime - backend-service`
+   
+   Nội dung email:
+   - **Alert:** SlowResponseTime
+   - **Status:** FIRING
+   - **Severity:** warning
+   - **Service:** backend-service
+   - **Summary:** Slow API response time
+   - **Description:** 95th percentile response time is 6.2s (threshold: 5s)
 
 3. **Trong Grafana:**
    - Response time graph sẽ tăng lên
@@ -1022,19 +1016,16 @@ curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
    - Alert **ApplicationDown** chuyển sang màu đỏ (FIRING)
 
 4. **Check email:**
-   - Nhận email với subject:
-     ```
-     🚨 [FIRING] ApplicationDown - backend-service
-     ```
-   - Nội dung email:
-     ```
-     Alert: ApplicationDown
-     Status: FIRING
-     Severity: critical
-     Service: backend-service
-     Summary: Application is down
-     Description: Backend service host.docker.internal:8080 is not responding
-     ```
+
+   Nhận email với subject: `🚨 [FIRING] ApplicationDown - backend-service`
+   
+   Nội dung email:
+   - **Alert:** ApplicationDown
+   - **Status:** FIRING
+   - **Severity:** critical
+   - **Service:** backend-service
+   - **Summary:** Application is down
+   - **Description:** Backend service host.docker.internal:8080 is not responding
 
 5. **Start lại application:**
    ```bash
@@ -1044,20 +1035,17 @@ curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
 6. **Đợi 10-15 giây**
 
 7. **Check email lần nữa:**
-   - Nhận email với subject:
-     ```
-     ✅ [RESOLVED] ApplicationDown - backend-service
-     ```
-   - Nội dung email:
-     ```
-     Alert: ApplicationDown
-     Status: RESOLVED
-     Severity: critical
-     Service: backend-service
-     Summary: Application is down
-     Description: Backend service host.docker.internal:8080 is not responding
-     Ended at: 2026-03-03 17:30:00
-     ```
+
+   Nhận email với subject: `✅ [RESOLVED] ApplicationDown - backend-service`
+   
+   Nội dung email:
+   - **Alert:** ApplicationDown
+   - **Status:** RESOLVED
+   - **Severity:** critical
+   - **Service:** backend-service
+   - **Summary:** Application is down
+   - **Description:** Backend service host.docker.internal:8080 is not responding
+   - **Ended at:** 2026-03-03 17:30:00
 
 **Giải thích:**
 - Khi app down, Prometheus không scrape được metrics từ `/actuator/prometheus`
