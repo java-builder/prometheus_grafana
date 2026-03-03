@@ -1162,13 +1162,52 @@ Dashboard sẽ hiển thị các metrics:
 
 ![Grafana Dashboard - Logs](https://res.cloudinary.com/drdskl2up/image/upload/v1772533222/Screenshot_2026-03-03_171931_l2oqgj.png)
 
-**Metrics hiển thị:**
-- **Basic Statistics**: Uptime, Start time, Heap Used, Non-Heap Used, Process Open Files
-- **CPU Usage**: System CPU Usage, Process CPU Usage
-- **Load Average**: System load average 1m, CPU Core Size
-- **JVM Statistics - Memory**: G1 Eden Space, G1 Old Gen, G1 Survivor Space, Direct Buffers, Mapped Buffers, Threads
-- **JVM Statistics - GC**: GC Count, GC Stop the World Duration
-- **Logs**: Total Error, Warning Logs, INFO logs, ERROR logs, WARN logs, DEBUG logs, TRACE logs
+**Giải thích các metrics hiển thị:**
+
+**1. Basic Statistics:**
+- **Uptime**: Thời gian ứng dụng đã chạy liên tục (N/A = chưa có data)
+- **Start time**: Thời điểm ứng dụng được khởi động
+- **Heap Used**: Bộ nhớ Heap đang sử dụng (Java objects)
+- **Non-Heap Used**: Bộ nhớ Non-Heap (class metadata, compiled code)
+- **Process Open Files**: Số file descriptors đang mở (connections, files)
+
+**2. CPU Usage:**
+- **System CPU Usage**: % CPU của toàn hệ thống
+- **Process CPU Usage**: % CPU mà ứng dụng Java đang dùng
+- Giúp phát hiện CPU spike hoặc high CPU usage
+
+**3. Load Average:**
+- **System Load Average 1m**: Số process chờ CPU trong 1 phút
+- **CPU Core Size**: Số lõi CPU của server
+- Load > số cores = hệ thống đang quá tải
+
+**4. JVM Statistics - Memory:**
+- **G1 Eden Space**: Vùng nhớ cho objects mới tạo
+- **G1 Old Gen**: Vùng nhớ cho objects tồn tại lâu
+- **G1 Survivor Space**: Vùng nhớ trung gian giữa Eden và Old Gen
+- **Direct Buffers**: Bộ nhớ ngoài heap cho I/O operations
+- **Mapped Buffers**: Memory-mapped files
+- **Threads**: Số threads đang chạy trong JVM
+
+**5. JVM Statistics - GC (Garbage Collection):**
+- **GC Count**: Số lần GC chạy (Minor GC, Major GC)
+- **GC Stop the World Duration**: Thời gian ứng dụng bị pause do GC
+- GC duration cao = ứng dụng bị lag
+
+**6. Logs:**
+- **Total Error**: Tổng số logs ERROR
+- **Warning Logs**: Số logs WARN
+- **INFO logs**: Số logs INFO (thông tin thông thường)
+- **ERROR logs**: Logs lỗi nghiêm trọng
+- **WARN logs**: Logs cảnh báo
+- **DEBUG logs**: Logs debug (development)
+- **TRACE logs**: Logs chi tiết nhất (troubleshooting)
+
+**Cách đọc dashboard:**
+- Màu xanh = Bình thường
+- Màu vàng/cam = Cảnh báo
+- Màu đỏ = Nguy hiểm
+- Spike (đột biến) trong graph = Có vấn đề cần kiểm tra
 
 **Lưu ý:** Nếu muốn dùng dashboard có sẵn từ cộng đồng, có thể:
 - Vào https://grafana.com/grafana/dashboards/
