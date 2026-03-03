@@ -2,43 +2,106 @@
 
 ## Monitoring là gì?
 
-**Monitoring** (giám sát) là quá trình thu thập, phân tích và hiển thị các chỉ số (metrics) của hệ thống để:
-- Theo dõi tình trạng hoạt động của ứng dụng
-- Phát hiện sớm các vấn đề (lỗi, performance)
-- Đưa ra cảnh báo khi có sự cố
-- Phân tích xu hướng và capacity planning
+**Monitoring** (giám sát hệ thống) là quá trình liên tục thu thập, lưu trữ, phân tích và trực quan hóa các chỉ số (metrics) của ứng dụng và hạ tầng để đảm bảo hệ thống hoạt động ổn định, phát hiện sớm các vấn đề và đưa ra quyết định tối ưu hóa.
 
-**Ví dụ metrics cần theo dõi:**
-- CPU, Memory usage
-- Request count, Response time
-- Error rate (4xx, 5xx)
-- Database connection pool
-- JVM Garbage Collection
+**Các thành phần chính của Monitoring:**
+
+1. **Metrics Collection** - Thu thập dữ liệu
+   - CPU usage, Memory usage, Disk I/O
+   - Request count, Response time, Throughput
+   - Error rate (HTTP 4xx, 5xx)
+   - Database connection pool, Query performance
+   - JVM metrics (Heap, GC, Thread count)
+
+2. **Data Storage** - Lưu trữ time-series data
+   - Lưu trữ metrics theo thời gian
+   - Cho phép query và phân tích lịch sử
+
+3. **Visualization** - Trực quan hóa
+   - Dashboard hiển thị metrics real-time
+   - Graphs, Charts để theo dõi xu hướng
+
+4. **Alerting** - Cảnh báo tự động
+   - Phát hiện anomaly (bất thường)
+   - Gửi thông báo qua Email, Slack, SMS
+   - Escalation khi vấn đề nghiêm trọng
 
 ## Tại sao cần Monitoring?
 
-### Trong Production
+### 1. Phát hiện sự cố sớm (Proactive vs Reactive)
 
-**Không có Monitoring:**
-- ❌ Không biết khi nào hệ thống có vấn đề
-- ❌ User phàn nàn mới biết lỗi
-- ❌ Khó debug vì không có data
-- ❌ Không biết performance bottleneck ở đâu
-
-**Có Monitoring:**
-- ✅ Phát hiện lỗi trước khi user báo
-- ✅ Nhận alert qua email/Slack ngay lập tức
-- ✅ Có data để phân tích root cause
-- ✅ Biết được xu hướng để scale hệ thống
-
-### Ví dụ thực tế
-
+**Không có Monitoring (Reactive):**
 ```
-10:00 - Memory tăng dần
-10:30 - Memory đạt 80% → Nhận warning alert
-10:45 - Memory đạt 95% → Nhận critical alert
-10:50 - Team xử lý trước khi app crash
+09:00 - Hệ thống bắt đầu chậm (không ai biết)
+09:30 - Memory leak nghiêm trọng (không ai biết)
+10:00 - Application crash
+10:05 - User bắt đầu phàn nàn
+10:10 - Team nhận được ticket từ user
+10:15 - Bắt đầu điều tra (không có data)
+10:45 - Tìm ra nguyên nhân
+11:00 - Fix và deploy
+→ Downtime: 1 giờ, User experience: Rất tệ
 ```
+
+**Có Monitoring (Proactive):**
+```
+09:00 - Hệ thống bắt đầu chậm
+09:05 - Prometheus phát hiện response time tăng
+09:06 - Alert gửi đến team qua email
+09:10 - Team check dashboard, thấy memory leak
+09:20 - Restart service hoặc scale up
+09:25 - Hệ thống trở lại bình thường
+→ Downtime: 0, User không hề biết có vấn đề
+```
+
+### 2. Tối ưu hóa Performance
+
+**Ví dụ thực tế:**
+- Phát hiện API `/api/users` có response time 3s (chậm)
+- Xem metrics: Database query mất 2.8s
+- Phân tích: Query không có index
+- Fix: Thêm index → Response time giảm xuống 200ms
+- Kết quả: User experience tốt hơn, giảm server load
+
+### 3. Capacity Planning (Lập kế hoạch mở rộng)
+
+**Phân tích xu hướng:**
+```
+Tháng 1: CPU usage trung bình 30%
+Tháng 2: CPU usage trung bình 45%
+Tháng 3: CPU usage trung bình 60%
+→ Dự đoán: Tháng 5 sẽ đạt 90% (nguy hiểm)
+→ Hành động: Scale up trước khi quá tải
+```
+
+### 4. Debugging nhanh hơn
+
+**Khi có lỗi production:**
+- Xem metrics: Thời điểm nào lỗi bắt đầu?
+- Xem logs: Error message là gì?
+- Xem traces: Request đi qua service nào?
+- So sánh: Có thay đổi gì trước khi lỗi?
+→ Tìm root cause nhanh hơn 10 lần
+
+### 5. SLA/SLO Compliance
+
+**Service Level Agreement:**
+- Uptime: 99.9% (downtime tối đa 43 phút/tháng)
+- Response time: 95% requests < 500ms
+- Error rate: < 0.1%
+
+Monitoring giúp track và đảm bảo đạt được các chỉ số này.
+
+### So sánh: Không có vs Có Monitoring
+
+| Tiêu chí | Không có Monitoring | Có Monitoring |
+|----------|---------------------|---------------|
+| Phát hiện lỗi | User phàn nàn mới biết | Tự động phát hiện trước |
+| Thời gian xử lý | Lâu (không có data) | Nhanh (có đầy đủ data) |
+| Downtime | Dài (phát hiện muộn) | Ngắn (phát hiện sớm) |
+| User experience | Tệ (bị ảnh hưởng) | Tốt (ít bị ảnh hưởng) |
+| Chi phí | Cao (mất khách hàng) | Thấp (ngăn chặn sớm) |
+| Quyết định | Dựa trên cảm tính | Dựa trên data |
 
 ## Monitoring trong Java Spring Boot
 
@@ -124,18 +187,6 @@ curl http://localhost:8080/actuator/metrics
 
 # Xem metrics format Prometheus
 curl http://localhost:8080/actuator/prometheus
-```
-
-**Output mẫu:**
-
-```
-# HELP jvm_memory_used_bytes The amount of used memory
-# TYPE jvm_memory_used_bytes gauge
-jvm_memory_used_bytes{application="monitoring",area="heap",id="G1 Eden Space"} 1.048576E7
-
-# HELP http_server_requests_seconds  
-# TYPE http_server_requests_seconds summary
-http_server_requests_seconds_count{application="monitoring",method="GET",status="200",uri="/api/v1/monitoring/health"} 5.0
 ```
 
 ### 1.4. MonitoringController - API để test alerts
@@ -299,45 +350,29 @@ networks:
 **Giải thích:**
 
 **Prometheus service:**
-- `ports: "9090:9090"`: Expose port 9090 ra ngoài
-- `volumes`: Mount config files từ máy host vào container
-  - `./prometheus.yml` → `/etc/prometheus/prometheus.yml`
-  - `./alert-rules.yml` → `/etc/prometheus/alert-rules.yml`
-- `command`: Chỉ định config file và storage path
-- `networks: monitoring`: Tạo network riêng cho các services
+- `image: prom/prometheus:latest` - Docker image của Prometheus
+- `ports: "9090:9090"` - Expose port 9090 ra ngoài để truy cập UI
+- `volumes` - Mount config files từ máy host vào container
+- `command` - Chỉ định config file và storage path
+- `networks: monitoring` - Kết nối vào network chung
 
 **Alertmanager service:**
-- `ports: "9093:9093"`: Expose port 9093
+- `ports: "9093:9093"` - Expose port 9093
 - Mount config `alertmanager.yml`
 
 **Grafana service:**
-- `ports: "3000:3000"`: Expose port 3000
-- `depends_on: prometheus`: Start sau khi Prometheus ready
+- `ports: "3000:3000"` - Expose port 3000
+- `depends_on: prometheus` - Start sau Prometheus
 
-**Volumes:**
-- `prometheus_data`, `grafana_data`, `alertmanager_data`: Persistent storage
-- Data không mất khi restart containers
-
-**Network:**
-- `monitoring`: Network riêng để các containers giao tiếp với nhau
-- Prometheus gọi Alertmanager qua `alertmanager:9093`
+**Volumes & Network:**
+- Persistent storage cho data
+- Network `monitoring` để containers giao tiếp với nhau
 
 ### 3.2. Khởi động Docker services
 
 ```bash
 # Start tất cả services
 docker-compose up -d
-
-# Kiểm tra containers
-docker ps
-
-# Xem logs
-docker logs prometheus
-docker logs alertmanager
-docker logs grafana
-
-# Stop services
-docker-compose down
 ```
 
 ---
@@ -804,50 +839,243 @@ docker-compose restart alertmanager
 
 ---
 
-## Phần 7: Testing
+## Phần 7: Testing Alerts
 
-### 7.1. Test Alert: HighServerErrorRate
+Sau khi setup xong, đã đến lúc test hệ thống monitoring! Chúng ta sẽ mô phỏng các tình huống lỗi thực tế để kiểm tra xem alerts có hoạt động không.
+
+### 7.1. Test Alert: HighServerErrorRate (Lỗi 500)
+
+**Mục đích:** Kiểm tra alert khi API trả về lỗi 500 (Internal Server Error)
+
+**Cách test:**
+
+**Sử dụng Postman:**
+
+1. Mở Postman
+2. Tạo request mới:
+   - Method: `GET`
+   - URL: `http://localhost:8080/api/v1/monitoring/error`
+3. Click **Send** nhiều lần (5-10 lần)
+
+**Hoặc sử dụng cURL:**
 
 ```bash
-# Gọi API error nhiều lần
-for i in {1..5}; do
-  curl http://localhost:8080/api/v1/monitoring/error
-done
-
-# Đợi 10-15 giây
-# Check Prometheus: http://localhost:9090/alerts
-# Check email
+# Gọi API error 5 lần
+curl http://localhost:8080/api/v1/monitoring/error
+curl http://localhost:8080/api/v1/monitoring/error
+curl http://localhost:8080/api/v1/monitoring/error
+curl http://localhost:8080/api/v1/monitoring/error
+curl http://localhost:8080/api/v1/monitoring/error
 ```
 
 **Kết quả mong đợi:**
-- Prometheus: Alert "HighServerErrorRate" chuyển sang đỏ (FIRING)
-- Email: Nhận email với subject "🚨 [FIRING] HighServerErrorRate - backend"
 
-### 7.2. Test Alert: SlowResponseTime
+1. **Sau 10-15 giây:**
+   - Vào Prometheus: http://localhost:9090/alerts
+   - Alert **HighServerErrorRate** chuyển sang màu đỏ (FIRING)
+
+2. **Sau 20-30 giây:**
+   - Check email: Nhận email với subject:
+     ```
+     🚨 [FIRING] HighServerErrorRate - backend-service
+     ```
+   - Nội dung email:
+     ```
+     Alert: HighServerErrorRate
+     Status: FIRING
+     Severity: critical
+     Service: backend-service
+     Summary: High 500 error rate detected
+     Description: Application monitoring has X errors per second
+     ```
+
+3. **Trong Grafana:**
+   - Vào dashboard
+   - Phần **Total Error** sẽ tăng lên
+   - Graph **ERROR logs** sẽ có spike
+
+**Giải thích:**
+- API `/monitoring/error` throw `RuntimeException` → Spring Boot trả về HTTP 500
+- Prometheus scrape metrics và phát hiện `http_server_requests_seconds_count{status="500"}` > 0
+- Alert rule trigger sau 5 giây
+- Alertmanager nhận alert và gửi email
+
+---
+
+### 7.2. Test Alert: SlowResponseTime (API chậm)
+
+**Mục đích:** Kiểm tra alert khi API response time > 5 giây
+
+**Cách test:**
+
+**Sử dụng Postman:**
+
+1. Mở Postman
+2. Tạo request mới:
+   - Method: `GET`
+   - URL: `http://localhost:8080/api/v1/monitoring/slow?delayMs=6000`
+3. Click **Send** nhiều lần (10-15 lần)
+4. Chờ mỗi request hoàn thành (6 giây/request)
+
+**Hoặc sử dụng cURL (chạy song song):**
 
 ```bash
-# Gọi API slow nhiều lần (6 giây)
-for i in {1..10}; do
-  curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
-done
-
-# Đợi 20-30 giây
-# Check email
+# Gọi 10 requests song song
+curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
+curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
+curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
+curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
+curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
+curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
+curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
+curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
+curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
+curl "http://localhost:8080/api/v1/monitoring/slow?delayMs=6000" &
 ```
 
-### 7.3. Test Alert: ApplicationDown
+**Kết quả mong đợi:**
 
-```bash
-# Stop Spring Boot app
-# Đợi 10 giây
-# Check email - nhận alert "ApplicationDown"
+1. **Sau 20-30 giây:**
+   - Vào Prometheus: http://localhost:9090/alerts
+   - Alert **SlowResponseTime** chuyển sang màu đỏ (FIRING)
 
-# Start lại app
-./mvnw spring-boot:run
+2. **Sau 40-50 giây:**
+   - Check email: Nhận email với subject:
+     ```
+     🚨 [FIRING] SlowResponseTime - backend-service
+     ```
+   - Nội dung email:
+     ```
+     Alert: SlowResponseTime
+     Status: FIRING
+     Severity: warning
+     Service: backend-service
+     Summary: Slow API response time
+     Description: 95th percentile response time is 6.2s (threshold: 5s)
+     ```
 
-# Đợi 10 giây
-# Check email - nhận alert "RESOLVED"
-```
+3. **Trong Grafana:**
+   - Response time graph sẽ tăng lên
+   - Có thể thấy spike trong CPU Usage
+
+**Giải thích:**
+- API `/monitoring/slow` sleep 6 giây trước khi trả về
+- Prometheus tính toán percentile 95 của response time
+- Khi p95 > 5 giây trong 1 phút → Alert trigger
+- Cần nhiều requests để có đủ data cho histogram
+
+---
+
+### 7.3. Test Alert: ApplicationDown (Ứng dụng down)
+
+**Mục đích:** Kiểm tra alert khi Spring Boot app không phản hồi
+
+**Cách test:**
+
+1. **Stop Spring Boot application:**
+
+   Vào terminal đang chạy Spring Boot, nhấn `Ctrl + C`
+
+   Hoặc tìm và kill process:
+   ```bash
+   # Windows
+   jps
+   # Tìm process ID của Spring Boot
+   taskkill /F /PID <process-id>
+
+   # Linux/Mac
+   ps aux | grep java
+   kill <process-id>
+   ```
+
+2. **Đợi 10-15 giây**
+
+3. **Check Prometheus:**
+   - Vào http://localhost:9090/alerts
+   - Alert **ApplicationDown** chuyển sang màu đỏ (FIRING)
+
+4. **Check email:**
+   - Nhận email với subject:
+     ```
+     🚨 [FIRING] ApplicationDown - backend-service
+     ```
+   - Nội dung email:
+     ```
+     Alert: ApplicationDown
+     Status: FIRING
+     Severity: critical
+     Service: backend-service
+     Summary: Application is down
+     Description: Backend service host.docker.internal:8080 is not responding
+     ```
+
+5. **Start lại application:**
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+
+6. **Đợi 10-15 giây**
+
+7. **Check email lần nữa:**
+   - Nhận email với subject:
+     ```
+     ✅ [RESOLVED] ApplicationDown - backend-service
+     ```
+   - Nội dung email:
+     ```
+     Alert: ApplicationDown
+     Status: RESOLVED
+     Severity: critical
+     Service: backend-service
+     Summary: Application is down
+     Description: Backend service host.docker.internal:8080 is not responding
+     Ended at: 2026-03-03 17:30:00
+     ```
+
+**Giải thích:**
+- Khi app down, Prometheus không scrape được metrics từ `/actuator/prometheus`
+- Metric `up{job="backend-service"}` chuyển từ 1 → 0
+- Alert trigger sau 5 giây
+- Khi app start lại, `up` chuyển về 1 → Alert resolved
+- Alertmanager gửi email "RESOLVED" (vì `send_resolved: true`)
+
+---
+
+### 7.4. Kiểm tra trong Grafana
+
+Sau khi test các alerts, vào Grafana dashboard để xem metrics:
+
+1. **Vào dashboard:** http://localhost:3000/dashboards
+2. **Chọn dashboard:** backend-service
+3. **Quan sát các metrics:**
+   - **Total Error**: Số lượng lỗi tăng lên sau test 7.1
+   - **CPU Usage**: Tăng lên khi test 7.2 (API chậm)
+   - **Uptime**: Reset về 0 sau khi restart app (test 7.3)
+   - **ERROR logs**: Spike khi có lỗi 500
+
+---
+
+## Kết luận
+
+Bạn đã setup thành công hệ thống monitoring với:
+
+[✓] Spring Boot expose metrics qua Actuator
+[✓] Prometheus scrape và lưu trữ metrics
+[✓] Alert rules tự động phát hiện lỗi
+[✓] Alertmanager gửi email cảnh báo
+[✓] Grafana visualize metrics
+
+**Khi triển khai production, hệ thống này sẽ giúp bạn:**
+
+- **Proactive Monitoring**: Phát hiện lỗi trước khi user phàn nàn
+- **Real-time Alerting**: Nhận cảnh báo ngay lập tức qua email
+- **Performance Tracking**: Theo dõi performance qua Grafana dashboard
+- **Faster Debugging**: Debug nhanh hơn với metrics chi tiết
+- **Capacity Planning**: Phân tích xu hướng để scale hệ thống
+
+---
+
+**Source code:** https://github.com/java-builder/prometheus_grafana
 
 ---
 
@@ -900,38 +1128,27 @@ Nếu thành công, sẽ thấy message màu xanh: "Successfully queried the Pro
 
 ### 8.3. Import Dashboard
 
-Sau khi add Prometheus data source thành công, tạo dashboard để visualize metrics:
+Sau khi add Prometheus data source thành công, import dashboard để visualize metrics:
 
-**Cách 1: Tạo dashboard mới**
+**Bước 1:** Download file dashboard JSON
 
-1. Vào **Dashboards** (menu bên trái)
-2. Click **Create dashboard**
+- Truy cập: https://res.cloudinary.com/drdskl2up/raw/upload/v1772534038/grafana-dashboard_epbxr5.json
+- Copy toàn bộ nội dung JSON
+- Tạo file mới tên `grafana-dashboard.json` ở thư mục root của project
+- Paste nội dung vào file và save
+
+**Bước 2:** Import dashboard vào Grafana
+
+1. Quay lại mục **Dashboards**, click **Create Dashboard**
 
 ![Create Dashboard](https://res.cloudinary.com/drdskl2up/image/upload/v1772531948/Screenshot_2026-03-03_165841_oj4nau.png)
 
-3. Click **Add visualization**
-4. Chọn data source **Prometheus**
-5. Viết PromQL query (ví dụ: `rate(http_server_requests_seconds_count[5m])`)
-6. Click **Apply**
-
-**Cách 2: Import dashboard có sẵn (Khuyến nghị)**
-
-1. Vào **Dashboards** → **New** → **Import**
-
-Hoặc từ màn hình Create dashboard, click **Import dashboard**
+2. Click **Import dashboard**
 
 ![Import Dashboard](https://res.cloudinary.com/drdskl2up/image/upload/v1772532014/Screenshot_2026-03-03_165938_zr9nwi.png)
 
-2. Có 3 cách import dashboard:
-
-![Import Options](https://res.cloudinary.com/drdskl2up/image/upload/v1772532059/Screenshot_2026-03-03_170049_kefkmo.png)
-
-   - **Upload dashboard JSON file**: Upload file từ máy tính
-   - **Import via grafana.com**: Nhập Dashboard ID từ Grafana.com
-   - **Import via dashboard JSON model**: Paste JSON trực tiếp
-
-3. **Chọn cách 1**: Click **Upload dashboard JSON file**
-4. Chọn file `monitoring/grafana-dashboard.json` từ project
+3. Click **Upload dashboard JSON file**
+4. Chọn file `grafana-dashboard.json` vừa tạo
 5. Grafana sẽ tự động load nội dung file
 
 ![Select Prometheus Data Source](https://res.cloudinary.com/drdskl2up/image/upload/v1772532671/Screenshot_2026-03-03_171024_budqve.png)
@@ -958,20 +1175,3 @@ Dashboard sẽ hiển thị các metrics:
 - Tìm "Spring Boot" hoặc "JVM"
 - Copy Dashboard ID (ví dụ: 4701)
 - Import bằng cách nhập ID vào ô "Import via grafana.com"
-
----
-
-## Kết luận
-
-Bạn đã setup thành công hệ thống monitoring với:
-- ✅ Spring Boot expose metrics qua Actuator
-- ✅ Prometheus scrape và lưu trữ metrics
-- ✅ Alert rules tự động phát hiện lỗi
-- ✅ Alertmanager gửi email cảnh báo
-- ✅ Grafana visualize metrics
-
-**Next steps:**
-- Thêm custom metrics cho business logic
-- Setup high availability cho Prometheus
-- Configure retention policy
-- Add more alert rules
